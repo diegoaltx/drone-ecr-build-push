@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    tags:
+    - v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get tags from ref
+      run: |
+        echo ::set-env name=TAG_RC::$(echo ${GITHUB_REF} | egrep -o 'v.*')
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v1.1.0
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        repository: diegoaltx/drone-ecr-build-push
+        tags: ${{ env.TAG_RC }}
+        add_git_labels: true
