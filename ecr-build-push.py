@@ -49,7 +49,7 @@ def get_dockerfile(env):
 
 def get_tags(env):
   commit = env.get('DRONE_COMMIT')
-  refs = [commit[0:8]]
+  refs = [commit[0:7]]
 
   return ['commit-' + ref for ref in refs]
 
