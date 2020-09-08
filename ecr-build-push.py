@@ -48,10 +48,10 @@ def get_dockerfile(env):
   return env.get('PLUGIN_DOCKERFILE', './Dockerfile')
 
 def get_tags(env):
-  commit = env.get('DRONE_COMMIT')
-  refs = [commit[0:7]]
-
-  return ['commit-' + ref for ref in refs]
+  user_tags = env.get('PLUGIN_TAGS')
+  tags = [tag for tag in user_tags.split(',')]
+  
+  return tags
 
 def get_settings(env):
   return {
