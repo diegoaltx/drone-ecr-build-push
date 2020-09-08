@@ -1,6 +1,8 @@
 FROM docker
 
-RUN apk add --update --no-cache curl py-pip
+RUN apk add --update --no-cache curl py-pip && \
+    ln -sf python3 /usr/bin/python && \
+    ln -sf pip3 /usr/bin/pip
 
 WORKDIR /usr/src/drone-plugin
 COPY requirements.txt ./
