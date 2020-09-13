@@ -114,7 +114,6 @@ def build_image(docker_client, settings):
     tag=build_tag,
     dockerfile=settings['dockerfile'],
     rm=True,
-    pull=True,
     forcerm=True,
     buildargs={
       'CI_BUILD_DATE': build_date,
@@ -180,7 +179,12 @@ def build_and_push_image():
   login_to_registries(docker_client, repos)
 
   print('Logged in. Building image...')
-  image = build_image(docker_client, settings)
+  image, build_logs = build_image(docker_client, settings)
+
+  for chunk in build_logs:
+    if 'stream' in chunk:
+      for line in chunk['stream'].splitlines():
+        print(line)
 
   print('Build finished.')
 
