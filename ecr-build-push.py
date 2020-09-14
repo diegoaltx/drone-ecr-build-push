@@ -4,7 +4,6 @@ import os
 import sys
 import base64
 from datetime import datetime, timezone
-from pprint import pprint
 
 def get_docker_client():
   return docker.from_env()
@@ -180,10 +179,14 @@ def build_and_push_image():
   login_to_registries(docker_client, repos)
 
   print('Logged in. Building image...', flush=True)
-  image, build_logs = build_image(docker_client, settings)
 
-  for chunk in build_logs:
-    pprint(chunk)
+  try:
+    image = build_image(docker_client, settings)
+  except docker.errors.BuildError as e:
+    for line in e.build_log:
+      if 'stream' in line:
+        print(line['stream'].strip())
+    raise
 
   print('Build finished.')
 
