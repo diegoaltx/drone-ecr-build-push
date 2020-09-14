@@ -4,6 +4,7 @@ import os
 import sys
 import base64
 from datetime import datetime, timezone
+from pprint import pprint
 
 def get_docker_client():
   return docker.from_env()
@@ -27,7 +28,7 @@ def get_sts_client(settings):
   )
 
 def exit_with_error(message, *args):
-  print('Something went wrong:', message.format(*args), file=sys.stderr)
+  print('Something went wrong:', message.format(*args), file=sys.stderr, flush=True)
   sys.exit(1)
 
 def get_aws_account_id(sts_client):
@@ -159,13 +160,13 @@ def build_and_push_image():
 
   print('AWS account id is {0}.'.format(aws_account_id))
   
-  print('Repo name is', settings['repo'])
+  print('Repo name is', settings['repo'], flush=True)
   
   print('Regions:')
   for region in settings['regions']:
     print('- ', region)
 
-  print('Fetching repos info from ECR across regions...')
+  print('Fetching repos info from ECR across regions...', flush=True)
 
   repos = get_repos(settings, ecr_clients, aws_account_id)
 
@@ -175,16 +176,14 @@ def build_and_push_image():
   for repo in repos:
     print('- ', repo['uri'])
 
-  print('Logging in to registries...')
+  print('Logging in to registries...', flush=True)
   login_to_registries(docker_client, repos)
 
-  print('Logged in. Building image...')
+  print('Logged in. Building image...', flush=True)
   image, build_logs = build_image(docker_client, settings)
 
   for chunk in build_logs:
-    if 'stream' in chunk:
-      for line in chunk['stream'].splitlines():
-        print(line)
+    pprint(chunk)
 
   print('Build finished.')
 
@@ -192,10 +191,10 @@ def build_and_push_image():
   for tag in settings['tags']:
     print('- ', tag)
   
-  print('Tagging image...')
+  print('Tagging image...', flush=True)
   tag_image(image, settings, repos)
 
-  print('Tagged. Pushing image tags to registries...')
+  print('Tagged. Pushing image tags to registries...', flush=True)
   push_image(docker_client, settings, repos)
 
   print('Pushed. All done.')
